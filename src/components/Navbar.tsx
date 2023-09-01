@@ -54,7 +54,15 @@ const styles = {
     padding: 5,
     display: "flex",
     marginLeft: "10px",
-    cursor: 'pointer'
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    // transform: "scale(0)",
+    ":hover": {
+      background: theme.colors.background.main,
+      borderRadius: '50%',
+      transition: "all 0.3s ease",
+      transform: "scale(1.2)",
+    },
   }),
   containerTitle: css({
     padding: 5,
@@ -142,7 +150,10 @@ const Navbar: React.FC<NavbarProps> = ({
             />
           </div>
           <div css={styles.title}>{title}</div>
-          <div css={styles.optionBtn} onClick={() => setOptionOpen(!optionOpen)}>
+          <div
+            css={styles.optionBtn}
+            onClick={() => setOptionOpen(!optionOpen)}
+          >
             <Icon
               icon="pepicons-pop:dots-y"
               color={theme.colors.primary}

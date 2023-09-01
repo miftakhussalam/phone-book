@@ -28,14 +28,19 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     textDecoration: "none",
-    // background: theme.colors.background,
     margin: 5,
     padding: 5,
     width: "90%",
     borderRadius: "7px",
-    boxShadow: "0px 1px 5px 0px rgba(0,0,0,0.75)",
-    // justifyContent: 'flex-start',
-    // alignItems: 'fe'
+    boxShadow: "0px 1px 4px 0px rgba(0,0,0,0.5)",
+    // marginLeft: '10px',
+    transition: 'all 0.3s ease',
+    ':hover': {
+      background: theme.colors.background.main,
+      transition: 'all 0.3s ease',
+      transform: "translateX(5px)",
+      marginLeft: '10px',
+    }
   }),
   outerContactName: css({
     display: "flex",
