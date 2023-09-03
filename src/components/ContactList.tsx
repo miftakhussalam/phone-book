@@ -29,8 +29,10 @@ const styles = {
   }),
   card: css({
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     textDecoration: "none",
+    // justifyContent: 'le',
+    alignItems: 'center',
     margin: 5,
     padding: 5,
     width: "90%",
@@ -45,9 +47,16 @@ const styles = {
       marginLeft: "10px",
     },
   }),
-  outerContactName: css({
+  contact: css({
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
+  }),
+  contactIcon: css({
+    background: theme.colors.primary,
+    borderRadius: '50%',
+    height: 35,
+    width: 35,
+    margin: 5
   }),
   contactName: css({
     margin: 0,
@@ -86,9 +95,9 @@ const styles = {
     background: theme.colors.secondary,
     border: "none",
     borderRadius: "5px",
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   }),
 };
 
@@ -165,34 +174,30 @@ const ContactList: React.FC<ContactListProps> = ({
                 to={`/contact/${items.id}`}
                 state={items}
               >
-                <div css={{ display: "flex", justifyContent: "space-between" }}>
-                  <div css={styles.outerContactName}>
-                    <Icon
-                      icon="material-symbols:person"
-                      color={theme.colors.text.dark}
-                      height={20}
-                      width={20}
-                      css={{ marginRight: "5px" }}
-                    />
-                    <p css={styles.contactName}>
-                      {items.first_name} {items.last_name}
-                    </p>
-                  </div>
-                </div>
-                {/* <div>
+                <Icon
+                  icon="bi:person-circle"
+                  color={theme.colors.text.light}
+                  height={20}
+                  width={20}
+                  css={styles.contactIcon}
+                />
+                <div css={styles.contact}>
+                  <p css={styles.contactName}>
+                    {items.first_name} {items.last_name}
+                  </p>
                   {items?.phones?.map((numb, index) => (
                     <p css={styles.contactNumber} key={index}>
-                      <Icon
+                      {/* <Icon
                         icon="ph:phone-fill"
                         color={theme.colors.text.dark}
                         height={12}
                         width={12}
                         css={{ marginRight: "5px" }}
-                      />
+                      /> */}
                       {numb.number || ""}
                     </p>
                   ))}
-                </div> */}
+                </div>
               </Link>
             );
           })

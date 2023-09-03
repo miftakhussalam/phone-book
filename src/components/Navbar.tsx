@@ -30,8 +30,10 @@ const styles = {
     justifyContent: "flex-start",
     alignItems: "center",
     color: theme.colors.background.main,
+    // minWidth: '75%',
   }),
   inputSearch: css({
+    // minWidth: '100%',
     padding: 5,
     textAlign: "center",
     borderColor: theme.colors.primary,
@@ -50,6 +52,7 @@ const styles = {
     position: "absolute",
     padding: 5,
     display: "flex",
+    // left: 25 // margin + padding inputSearch & searchBox + 5
   }),
   addButton: css({
     padding: 5,
