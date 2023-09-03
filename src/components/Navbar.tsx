@@ -9,8 +9,8 @@ import Options from "./Options";
 interface NavbarProps {
   searchValue?: string;
   setSearchValue?: React.Dispatch<React.SetStateAction<string>>;
-  openModal?: boolean;
-  setOpenModal?: React.Dispatch<React.SetStateAction<boolean>>;
+  openModal: boolean;
+  setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
   type: string | undefined;
   title?: string | undefined;
 }
@@ -21,6 +21,7 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     background: theme.colors.secondary,
+    padding: 5,
   }),
   searchBox: css({
     display: "flex",
@@ -59,7 +60,7 @@ const styles = {
     // transform: "scale(0)",
     ":hover": {
       background: theme.colors.background.main,
-      borderRadius: '50%',
+      borderRadius: "50%",
       transition: "all 0.3s ease",
       transform: "scale(1.2)",
     },
@@ -161,7 +162,12 @@ const Navbar: React.FC<NavbarProps> = ({
               width={30}
             />
           </div>
-          <Options optionOpen={optionOpen} setOptionOpen={setOptionOpen} />
+          <Options
+            optionOpen={optionOpen}
+            setOptionOpen={setOptionOpen}
+            openModal={openModal}
+            setOpenModal={setOpenModal}
+          />
         </div>
       )}
     </div>

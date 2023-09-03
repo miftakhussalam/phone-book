@@ -9,6 +9,8 @@ import { Icon } from "@iconify/react";
 interface OptionsProps {
   optionOpen: boolean;
   setOptionOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  openModal: boolean;
+  setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const styles = {
@@ -33,36 +35,36 @@ const styles = {
     zIndex: 2,
   }),
   optionBtn: css({
-		display: 'flex',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		cursor: 'pointer',
-		margin: '10px',
-		':hover': {
-			color: theme.colors.primary
-		}
-	}),
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    cursor: "pointer",
+    margin: "10px",
+    ":hover": {
+      color: theme.colors.primary,
+    },
+  }),
   optionsOpen: css({
     opacity: 1,
     pointerEvents: "auto",
-    transform: "translateX(0%)",
+    transform: "translateY(0%)",
   }),
   optionsClosed: css({
     opacity: 0,
     pointerEvents: "none",
-    transform: "translateX(100%)",
+    transform: "translateY(-100%)",
   }),
 };
 
 const Options: React.FC<OptionsProps> = ({
   optionOpen,
   setOptionOpen,
+  openModal,
+  setOpenModal,
 }: OptionsProps) => {
-  const [deleteContact, { data, loading, error }] = useMutation(DELETE_CONTACT);
+  const [deleteContact] = useMutation(DELETE_CONTACT);
   const navigate = useNavigate();
   const params = useParams();
-
-  console.log(params);
 
   const onDelete = () => {
     deleteContact({ variables: { id: params.id } }).then(() =>
@@ -70,10 +72,12 @@ const Options: React.FC<OptionsProps> = ({
     );
   };
   const onEdit = () => {
-    console.log('edit');
+    // console.log("edit", openModal);
+    setOptionOpen(false);
+    setOpenModal(true);
   };
   const onFavorite = () => {
-    console.log('fav');
+    console.log("fav");
   };
 
   return (

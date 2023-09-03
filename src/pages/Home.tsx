@@ -12,7 +12,7 @@ const HomePage: React.FC<HomeProps> = (props: HomeProps) => {
 
   return (
     <div>
-      <ModalCreateUpdate openModal={openModal} setOpenModal={setOpenModal} />
+      <ModalCreateUpdate type='add' openModal={openModal} setOpenModal={setOpenModal} />
       <Navbar
         searchValue={searchValue}
         setSearchValue={setSearchValue}

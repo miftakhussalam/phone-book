@@ -1,11 +1,12 @@
 /** @jsxImportSource @emotion/react */
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { css } from "@emotion/react";
 import { Icon } from "@iconify/react";
 import { ContactModel } from "../graphql/models";
 import Navbar from "../components/Navbar";
 import { theme } from "../theme/theme";
+import ModalCreateUpdate from "../components/ModalCreateUpdate";
 
 interface ContactDetailProps {}
 
@@ -53,10 +54,38 @@ const ContactDetailPage: React.FC<ContactDetailProps> = (
   props: ContactDetailProps
 ) => {
   const { state }: { state: ContactModel } = useLocation();
+  const defaultContactDetail = {
+    __typename: "contact",
+    id: 0,
+    first_name: "",
+    last_name: "",
+    phones: [
+      {
+        __typename: "phone",
+        number: "",
+      },
+    ],
+  };
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [contactDetail, setContactDetail] = useState<ContactModel>(
+    state || defaultContactDetail
+  );
 
   return (
     <div>
-      <Navbar type="header" title={state.first_name} />
+      <ModalCreateUpdate
+        type="edit"
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        contactDetail={contactDetail}
+        setContactDetail={setContactDetail}
+      />
+      <Navbar
+        type="header"
+        title={contactDetail.first_name}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+      />
       <div css={styles.container}>
         <Icon
           icon="fluent:person-32-filled"
@@ -66,7 +95,7 @@ const ContactDetailPage: React.FC<ContactDetailProps> = (
         />
       </div>
       <p css={styles.contactName}>
-        {state.first_name} {state.last_name}
+        {contactDetail.first_name} {contactDetail.last_name}
       </p>
       <div css={styles.actions}>
         <div css={styles.actionIcon}>
@@ -97,7 +126,7 @@ const ContactDetailPage: React.FC<ContactDetailProps> = (
           <p css={styles.actionText}>Video</p>
         </div>
       </div>
-      {state.phones.map((items, index) => (
+      {contactDetail.phones.map((items, index) => (
         <div css={styles.listNumber} key={index}>
           <Icon
             icon="ph:phone-fill"

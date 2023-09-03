@@ -1,23 +1,27 @@
 /** @jsxImportSource @emotion/react */
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { css } from "@emotion/react";
 import { theme } from "../theme/theme";
-import { PhoneModel } from "../graphql/models";
+import { ContactModel, PhoneModel } from "../graphql/models";
 import { Icon } from "@iconify/react";
 import { gql, useMutation } from "@apollo/client";
-import { ADD_CONTACT_WITH_PHONES } from "../graphql/mutations";
-import { GET_CONTACT_LIST } from "../graphql/queries";
+import {
+  ADD_CONTACT_WITH_PHONES,
+  ADD_NUMBER_TO_CONTACT,
+  EDIT_CONTACT_BY_ID,
+  EDIT_PHONE_NUMBER,
+} from "../graphql/mutations";
+// import { GET_CONTACT_LIST } from "../graphql/queries";
 
 interface ModalCreateUpdateProps {
   openModal?: boolean;
   setOpenModal?: React.Dispatch<React.SetStateAction<boolean>>;
+  contactDetail?: ContactModel;
+  setContactDetail?: React.Dispatch<React.SetStateAction<ContactModel>>;
+  type: string;
 }
 
 const styles = {
-  displayNone: css({
-    display: "none",
-    transition: "all 0.5s ease-out",
-  }),
   root: css({
     display: "flex",
     flexDirection: "column",
@@ -95,8 +99,22 @@ const styles = {
     display: "flex",
     justifyContent: "right",
     alignItems: "center",
-    marginLeft: '10px',
-    cursor: 'pointer',
+    cursor: "pointer",
+    alignSelf: "self-end",
+    color: theme.colors.primary,
+    gap: 10,
+    // transition: "all 0.3s ease",
+    ':hover': {
+      fontWeight: "bolder",
+      transition: "all 0.3s ease",
+    }
+  }),
+  actionBtn: css({
+    display: "flex",
+    justifyContent: "right",
+    alignItems: "center",
+    marginLeft: "10px",
+    cursor: "pointer",
   }),
   containerConfirmBtn: css({
     display: "flex",
@@ -105,7 +123,7 @@ const styles = {
     width: "100%",
   }),
   confirmBtn: css({
-    cursor: 'pointer',
+    cursor: "pointer",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -114,7 +132,7 @@ const styles = {
     borderRadius: "5px",
     color: theme.colors.text.light,
     gap: 5,
-    padding: '5px'
+    padding: "5px",
   }),
   modalOpen: css({
     opacity: 1,
@@ -131,14 +149,24 @@ const styles = {
 const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
   openModal,
   setOpenModal,
+  contactDetail,
+  setContactDetail,
+  type,
 }: ModalCreateUpdateProps) => {
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [phones, setPhones] = useState<PhoneModel[]>([{ number: "" }]);
+  const [firstName, setFirstName] = useState<string>(
+    contactDetail?.first_name || ""
+  );
+  const [lastName, setLastName] = useState<string>(
+    contactDetail?.last_name || ""
+  );
+  const [phones, setPhones] = useState<PhoneModel[]>(
+    contactDetail?.phones || [{ number: "" }]
+  );
 
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>, i: number) => {
     const updatedPhones = [...phones];
-    updatedPhones[i] = { number: e.target.value };
+    const inputValue = e.target.value;
+    updatedPhones[i] = { number: inputValue.replace(/[^0-9+]/g, '') };
     setPhones(updatedPhones);
   };
 
@@ -148,34 +176,108 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
     setPhones(updatedPhones);
   };
 
-  const [addContact, { data, loading, error }] = useMutation(
-    ADD_CONTACT_WITH_PHONES,
-    {
-      update(cache, { data: addContact }) {
-        cache.modify({
-          fields: {
-            contact(existingContact = []) {
-              const newContactRef = cache.writeFragment({
-                data: addContact.insert_contact.returning[0],
-                fragment: gql`
-                  fragment AddContactWithPhones on contact {
-                    first_name
-                    last_name
-                    id
-                    phones {
-                      number
-                    }
+  const [addContact] = useMutation(ADD_CONTACT_WITH_PHONES, {
+    update(cache, { data: addContact }) {
+      cache.modify({
+        fields: {
+          contact(existingContact = []) {
+            const newContactRef = cache.writeFragment({
+              data: addContact.insert_contact.returning[0],
+              fragment: gql`
+                fragment AddContactWithPhones on contact {
+                  first_name
+                  last_name
+                  id
+                  phones {
+                    number
                   }
-                `,
-              });
-              return [...existingContact, newContactRef];
-            },
+                }
+              `,
+            });
+            return [...existingContact, newContactRef];
           },
-        });
-      },
-      // refetchQueries: [{ query: GET_CONTACT_LIST }],
-    }
-  );
+        },
+      });
+    },
+    // refetchQueries: [{ query: GET_CONTACT_LIST }],
+  });
+
+  const [editContact] = useMutation(EDIT_CONTACT_BY_ID, {
+    update(cache, { data: editContact }) {
+      cache.modify({
+        fields: {
+          contact(existingContact = []) {
+            const newContactRef = cache.writeFragment({
+              data: editContact.update_contact_by_pk,
+              fragment: gql`
+                fragment EditContactWithPhones on contact {
+                  first_name
+                  last_name
+                  id
+                  phones {
+                    number
+                  }
+                }
+              `,
+            });
+            return [...existingContact, newContactRef];
+          },
+        },
+      });
+    },
+    // refetchQueries: [{ query: GET_CONTACT_LIST }],
+  });
+
+  const [addNumberToContact] = useMutation(ADD_NUMBER_TO_CONTACT, {
+    update(cache, { data: addNumberToContact }) {
+      cache.modify({
+        fields: {
+          contact(existingContact = []) {
+            const newContactRef = cache.writeFragment({
+              data: addNumberToContact.insert_phone.returning[0].contact,
+              fragment: gql`
+                fragment AddNumberToContact on contact {
+                  first_name
+                  last_name
+                  id
+                  phones {
+                    number
+                  }
+                }
+              `,
+            });
+            return [...existingContact, newContactRef];
+          },
+        },
+      });
+    },
+    // refetchQueries: [{ query: GET_CONTACT_LIST }],
+  });
+
+  const [editPhoneNumber] = useMutation(EDIT_PHONE_NUMBER, {
+    update(cache, { data: editPhoneNumber }) {
+      cache.modify({
+        fields: {
+          contact(existingPhoneNumber = []) {
+            const newPhoneNumberRef = cache.writeFragment({
+              data: editPhoneNumber.update_phone_by_pk.contact,
+              fragment: gql`
+                fragment EditPhoneNumberWithPhones on contact {
+                  first_name
+                  last_name
+                  id
+                  phones {
+                    number
+                  }
+                }
+              `,
+            });
+            return [...existingPhoneNumber, newPhoneNumberRef];
+          },
+        },
+      });
+    },
+  });
 
   const closeModal = () => {
     if (setOpenModal) {
@@ -183,23 +285,77 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
     }
   };
 
-  const submitData = () => {
-    addContact({
-      variables: {
-        first_name: firstName,
-        last_name: lastName,
-        phones,
-      },
-    })
-      .then((data) => {
-        closeModal();
-        console.log(data);
+  const addEditPhoneNumber = (phone: PhoneModel, index: number) => {
+    if (index >= (contactDetail?.phones.length || 0)) {
+      addNumberToContact({
+        variables: {
+          contact_id: contactDetail?.id,
+          phone_number: phones[index].number,
+        },
       })
-      .catch((err) => alert(err));
+        .then((res) => {
+          alert("add number success");
+          if (setContactDetail)
+            setContactDetail(res.data.insert_phone.returning[0].contact);
+        })
+        .catch((err) => alert(err));
+    } else {
+      editPhoneNumber({
+        variables: {
+          pk_columns: {
+            number: phone.number,
+            contact_id: contactDetail?.id,
+          },
+          new_phone_number: phones[index].number,
+        },
+      })
+        .then((res) => {
+          alert("update success");
+          if (setContactDetail)
+            setContactDetail(res.data.update_phone_by_pk.contact);
+        })
+        .catch((err) => alert(err));
+    }
   };
 
-  console.log('data:', data);
+  const submitData = () => {
+    if (type === "add") {
+      addContact({
+        variables: {
+          first_name: firstName,
+          last_name: lastName,
+          phones,
+        },
+      })
+        .then((res) => {
+          closeModal();
+          alert("add contact success");
+        })
+        .catch((err) => alert(err));
+    } else {
+      editContact({
+        variables: {
+          id: contactDetail?.id,
+          _set: {
+            first_name: firstName,
+            last_name: lastName,
+            // phones,
+          },
+        },
+      })
+        .then((res) => {
+          closeModal();
+          if (setContactDetail) setContactDetail(res.data.update_contact_by_pk);
+        })
+        .catch((err) => alert(err));
+    }
+  };
 
+  useEffect(() => {
+    setFirstName(contactDetail?.first_name || "");
+    setLastName(contactDetail?.last_name || "");
+    setPhones(contactDetail?.phones || [{ number: "" }]);
+  }, [contactDetail]);
   return (
     <div
       css={[styles.root, !openModal ? styles.modalClosed : styles.modalOpen]}
@@ -212,7 +368,13 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
             css={styles.input}
             type="text"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={(e) => {
+              if (/^[a-zA-Z0-9\s]+$/.test(e.target.value)) {
+                setFirstName(e.target.value);
+              } else if (e.target.value === "") {
+                setFirstName("");
+              }
+            }}
             placeholder="your first name..."
           />
         </div>
@@ -222,7 +384,13 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
             css={styles.input}
             type="text"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={(e) => {
+              if (/^[a-zA-Z0-9\s]+$/.test(e.target.value)) {
+                setLastName(e.target.value);
+              } else if (e.target.value === "") {
+                setLastName("");
+              }
+            }}
             placeholder="your last name..."
           />
         </div>
@@ -232,27 +400,36 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
             <div css={styles.phoneNumber} key={index}>
               <input
                 css={styles.input}
-                type="number"
+                pattern="[0-9\+]+"
+                title="Phone Number (Format: +99(99)9999-9999)"
                 value={item.number}
                 onChange={(e) => handlePhoneChange(e, index)}
                 placeholder="your phone number..."
+                required
               />
-              {phones.length - index === 1 ? (
+              {type === "add" ? (
+                index > 0 && (
+                  <div css={styles.actionBtn} onClick={() => removePhone(index)}>
+                    <Icon
+                      icon="mdi:trash-outline"
+                      color={theme.colors.primary}
+                      height={20}
+                      width={20}
+                    />
+                  </div>
+                )
+              ) : (
                 <div
-                  css={styles.moreBtn}
-                  onClick={() => setPhones([...phones, { number: "" }])}
+                  css={styles.actionBtn}
+                  onClick={() =>
+                    addEditPhoneNumber(
+                      contactDetail?.phones[index] || { number: "" },
+                      index
+                    )
+                  }
                 >
                   <Icon
-                    icon="zondicons:add-outline"
-                    color={theme.colors.primary}
-                    height={20}
-                    width={20}
-                  />
-                </div>
-              ) : (
-                <div css={styles.moreBtn} onClick={() => removePhone(index)}>
-                  <Icon
-                    icon="mdi:trash-outline"
+                    icon="material-symbols:save-outline"
                     color={theme.colors.primary}
                     height={20}
                     width={20}
@@ -261,6 +438,18 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
               )}
             </div>
           ))}
+          <div
+            css={styles.moreBtn}
+            onClick={() => setPhones([...phones, { number: "" }])}
+          >
+            <p>add more</p>
+            <Icon
+              icon="zondicons:add-outline"
+              color={theme.colors.primary}
+              height={20}
+              width={20}
+            />
+          </div>
         </div>
         <div css={styles.containerConfirmBtn}>
           <button
