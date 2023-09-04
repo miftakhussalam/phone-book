@@ -6,6 +6,7 @@ import { DELETE_CONTACT } from "../graphql/mutations";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { favoriteContactsVar } from "../graphql/cache";
+import { ContactModel } from "../graphql/models";
 
 interface OptionsProps {
   optionOpen: boolean;
@@ -68,6 +69,12 @@ const Options: React.FC<OptionsProps> = ({
   const params = useParams();
   const { state } = useLocation();
 
+  const isFavorite = (contact: ContactModel) => {
+    return favoriteContactsVar().some(item => {
+      return item.id === contact.id
+    })
+  };
+
   const onDelete = () => {
     deleteContact({ variables: { id: params.id } }).then(() =>
       navigate("/home")
@@ -79,8 +86,14 @@ const Options: React.FC<OptionsProps> = ({
   };
 
   const onFavorite = () => {
-    favoriteContactsVar([...favoriteContactsVar(), state]);
-    localStorage.setItem('fav', JSON.stringify(favoriteContactsVar()));
+    if (isFavorite(state)) {
+      const filteredContact: ContactModel[] = favoriteContactsVar().filter(item => item.id !== state.id);
+      favoriteContactsVar(filteredContact);
+      localStorage.setItem("fav", JSON.stringify(filteredContact));
+    } else {
+      favoriteContactsVar([...favoriteContactsVar(), state]);
+      localStorage.setItem("fav", JSON.stringify(favoriteContactsVar()));
+    }
     setOptionOpen(false);
   };
 
@@ -106,7 +119,7 @@ const Options: React.FC<OptionsProps> = ({
           />
         </div>
         <div onClick={() => onFavorite()} css={styles.optionBtn}>
-          Favorite
+          {isFavorite(state) ? 'Unfavorite' : 'Favorite'}
           <Icon
             icon="ic:baseline-star"
             color={theme.colors.primary}
