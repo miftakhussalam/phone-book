@@ -3,8 +3,9 @@ import { css } from "@emotion/react";
 import { theme } from "../theme/theme";
 import { useMutation } from "@apollo/client";
 import { DELETE_CONTACT } from "../graphql/mutations";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
+import { favoriteContactsVar } from "../graphql/cache";
 
 interface OptionsProps {
   optionOpen: boolean;
@@ -65,6 +66,7 @@ const Options: React.FC<OptionsProps> = ({
   const [deleteContact] = useMutation(DELETE_CONTACT);
   const navigate = useNavigate();
   const params = useParams();
+  const { state } = useLocation();
 
   const onDelete = () => {
     deleteContact({ variables: { id: params.id } }).then(() =>
@@ -72,12 +74,14 @@ const Options: React.FC<OptionsProps> = ({
     );
   };
   const onEdit = () => {
-    // console.log("edit", openModal);
     setOptionOpen(false);
     setOpenModal(true);
   };
+
   const onFavorite = () => {
-    console.log("fav");
+    favoriteContactsVar([...favoriteContactsVar(), state]);
+    localStorage.setItem('fav', JSON.stringify(favoriteContactsVar()));
+    setOptionOpen(false);
   };
 
   return (
@@ -101,7 +105,7 @@ const Options: React.FC<OptionsProps> = ({
             width={20}
           />
         </div>
-        <div onClick={onFavorite} css={styles.optionBtn}>
+        <div onClick={() => onFavorite()} css={styles.optionBtn}>
           Favorite
           <Icon
             icon="ic:baseline-star"

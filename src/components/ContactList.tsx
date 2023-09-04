@@ -1,12 +1,13 @@
 /** @jsxImportSource @emotion/react */
 import React from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery, useReactiveVar } from "@apollo/client";
 import { Icon } from "@iconify/react";
 import { css } from "@emotion/react";
 import { Link } from "react-router-dom";
 import { ContactModel } from "../graphql/models";
 import { GET_CONTACT_AGGREGATE, GET_CONTACT_LIST } from "../graphql/queries";
 import { theme } from "../theme/theme";
+import { favoriteContactsVar } from "../graphql/cache";
 
 interface ContactListProps {
   searchValue: string;
@@ -32,7 +33,7 @@ const styles = {
     flexDirection: "row",
     textDecoration: "none",
     // justifyContent: 'le',
-    alignItems: 'center',
+    alignItems: "center",
     margin: 5,
     padding: 5,
     width: "90%",
@@ -53,10 +54,10 @@ const styles = {
   }),
   contactIcon: css({
     background: theme.colors.primary,
-    borderRadius: '50%',
+    borderRadius: "50%",
     height: 35,
     width: 35,
-    margin: 5
+    margin: 5,
   }),
   contactName: css({
     margin: 0,
@@ -99,6 +100,11 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
   }),
+  loader: css({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }),
 };
 
 const ContactList: React.FC<ContactListProps> = ({
@@ -108,6 +114,7 @@ const ContactList: React.FC<ContactListProps> = ({
   itemsPerPage,
 }: ContactListProps) => {
   const startIndex = (currentPage - 1) * itemsPerPage;
+  const favoriteContacts = useReactiveVar(favoriteContactsVar);
 
   const { loading, error, data } = useQuery<DataModel>(GET_CONTACT_LIST, {
     variables: {
@@ -124,6 +131,11 @@ const ContactList: React.FC<ContactListProps> = ({
             },
           },
         ],
+        _not: {
+          id: {
+            _in: favoriteContacts.map((items) => items.id),
+          },
+        },
       },
       order_by: [{ first_name: "asc" }],
       limit: itemsPerPage,
@@ -148,6 +160,11 @@ const ContactList: React.FC<ContactListProps> = ({
             },
           },
         ],
+        _not: {
+          id: {
+            _in: favoriteContacts.map((items) => items.id),
+          },
+        },
       },
     },
   });
@@ -160,11 +177,65 @@ const ContactList: React.FC<ContactListProps> = ({
     setCurrentPage(newPage);
   };
 
-  if (loading) return <div>loading...</div>;
+  if (loading)
+    return (
+      <div css={styles.loader}>
+        <Icon
+          icon="eos-icons:three-dots-loading"
+          color={theme.colors.primary}
+          height={100}
+          width={100}
+        />
+      </div>
+    );
 
   return (
     <div css={styles.container}>
-      {error ? `Error! ${error.message}` : ""}
+      favorite contact
+      {favoriteContacts.length !== 0
+        ? favoriteContacts.map((items) => {
+            return (
+              <Link
+                css={styles.card}
+                key={items.id}
+                to={`/contact/${items.id}`}
+                state={items}
+              >
+                <Icon
+                  icon="bi:person-circle"
+                  color={theme.colors.text.light}
+                  height={20}
+                  width={20}
+                  css={styles.contactIcon}
+                />
+                <div css={styles.contact}>
+                  <p css={styles.contactName}>
+                    {items.first_name} {items.last_name}
+                  </p>
+                  {items?.phones?.map((numb, index) => (
+                    <p css={styles.contactNumber} key={index}>
+                      {/* <Icon
+                        icon="ph:phone-fill"
+                        color={theme.colors.text.dark}
+                        height={12}
+                        width={12}
+                        css={{ marginRight: "5px" }}
+                      /> */}
+                      {numb.number || ""}
+                    </p>
+                  ))}
+                </div>
+                <Icon
+                  icon="ic:baseline-star"
+                  color={theme.colors.primary}
+                  height={20}
+                  width={20}
+                />
+              </Link>
+            );
+          })
+        : "Contact is empty"}
+      regular contact
       {data?.contact.length !== 0
         ? data?.contact.map((items) => {
             return (
