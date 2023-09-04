@@ -124,7 +124,6 @@ const ContactList: React.FC<ContactListProps> = ({
   setCurrentPage,
   itemsPerPage,
 }: ContactListProps) => {
-
   const startIndex = (currentPage - 1) * itemsPerPage;
   const favoriteContacts = useReactiveVar(favoriteContactsVar);
 
@@ -157,32 +156,29 @@ const ContactList: React.FC<ContactListProps> = ({
     nextFetchPolicy: "cache-only",
   });
 
-  const { data: totalData } = useQuery(
-    GET_CONTACT_AGGREGATE,
-    {
-      variables: {
-        where: {
-          _or: [
-            {
-              first_name: {
-                _ilike: `%${searchValue}%`,
-              },
+  const { data: totalData } = useQuery(GET_CONTACT_AGGREGATE, {
+    variables: {
+      where: {
+        _or: [
+          {
+            first_name: {
+              _ilike: `%${searchValue}%`,
             },
-            {
-              last_name: {
-                _ilike: `%${searchValue}%`,
-              },
+          },
+          {
+            last_name: {
+              _ilike: `%${searchValue}%`,
             },
-          ],
-          _not: {
-            id: {
-              _in: favoriteContacts.map((items) => items.id),
-            },
+          },
+        ],
+        _not: {
+          id: {
+            _in: favoriteContacts.map((items) => items.id),
           },
         },
       },
-    }
-  );
+    },
+  });
 
   const totalPages = Math.ceil(
     (totalData?.contact_aggregate?.aggregate?.count || 0) / itemsPerPage
@@ -206,43 +202,44 @@ const ContactList: React.FC<ContactListProps> = ({
 
   return (
     <div css={styles.container}>
+      {favoriteContacts.length !== 0 ? (
+        <p css={styles.title}>favorite contact</p>
+      ) : null}
+
       {favoriteContacts.length !== 0
         ? favoriteContacts.map((items) => {
             return (
-              <>
-                <p css={styles.title}>favorite contact</p>
-                <Link
-                  css={styles.card}
-                  key={items.id}
-                  to={`/contact/${items.id}`}
-                  state={items}
-                >
-                  <Icon
-                    icon="bi:person-circle"
-                    color={theme.colors.text.light}
-                    height={20}
-                    width={20}
-                    css={styles.contactIcon}
-                  />
-                  <div css={styles.contact}>
-                    <p css={styles.contactName}>
-                      {items.first_name} {items.last_name}
-                    </p>
-                    {items?.phones?.map((numb, index) => (
-                      <p css={styles.contactNumber} key={index}>
-                        {/* <Icon
+              <Link
+                css={styles.card}
+                key={items.id}
+                to={`/contact/${items.id}`}
+                state={items}
+              >
+                <Icon
+                  icon="bi:person-circle"
+                  color={theme.colors.text.light}
+                  height={20}
+                  width={20}
+                  css={styles.contactIcon}
+                />
+                <div css={styles.contact}>
+                  <p css={styles.contactName}>
+                    {items.first_name} {items.last_name}
+                  </p>
+                  {items?.phones?.map((numb, index) => (
+                    <p css={styles.contactNumber} key={index}>
+                      {/* <Icon
                         icon="ph:phone-fill"
                         color={theme.colors.text.dark}
                         height={12}
                         width={12}
                         css={{ marginRight: "5px" }}
                       /> */}
-                        {numb.number || ""}
-                      </p>
-                    ))}
-                  </div>
-                </Link>
-              </>
+                      {numb.number || ""}
+                    </p>
+                  ))}
+                </div>
+              </Link>
             );
           })
         : null}
