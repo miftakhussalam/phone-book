@@ -11,11 +11,18 @@ import ModalCreateUpdate from "../components/ModalCreateUpdate";
 interface ContactDetailProps {}
 
 const styles = {
+  root: css({
+    // padding: 10
+  }),
   container: css({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     marginTop: "10px",
+  }),
+  profileIcon: css({
+    height: 100,
+    width: 100,
   }),
   contactName: css({
     fontSize: 16,
@@ -28,6 +35,10 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-around",
     marginBottom: "10px",
+    "@media(min-width: 640px)": {
+      padding: "0 100px",
+      marginBottom: "20px",
+    },
   }),
   actionIcon: css({
     display: "flex",
@@ -41,6 +52,7 @@ const styles = {
   listNumber: css({
     display: "flex",
     alignItems: "center",
+    margin: '10px 50px'
   }),
   number: css({
     margin: 0,
@@ -72,7 +84,7 @@ const ContactDetailPage: React.FC<ContactDetailProps> = (
   );
 
   return (
-    <div>
+    <div css={styles.root}>
       <ModalCreateUpdate
         type="edit"
         openModal={openModal}
@@ -90,8 +102,7 @@ const ContactDetailPage: React.FC<ContactDetailProps> = (
         <Icon
           icon="fluent:person-32-filled"
           color={theme.colors.text.dark}
-          height={100}
-          width={100}
+          css={styles.profileIcon}
         />
       </div>
       <p css={styles.contactName}>

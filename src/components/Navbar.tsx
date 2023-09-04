@@ -30,9 +30,15 @@ const styles = {
     justifyContent: "flex-start",
     alignItems: "center",
     color: theme.colors.background.main,
-    // minWidth: '75%',
+    "@media(min-width: 640px)": {
+      width: "80%",
+    },
   }),
   inputSearch: css({
+    "@media(min-width: 640px)": {
+      width: "80%",
+      padding: 12,
+    },
     // minWidth: '100%',
     padding: 5,
     textAlign: "center",
@@ -52,7 +58,13 @@ const styles = {
     position: "absolute",
     padding: 5,
     display: "flex",
-    // left: 25 // margin + padding inputSearch & searchBox + 5
+    "@media(min-width: 640px)": {
+      left: "11%",
+    },
+  }),
+  btnSearchIcon: css({
+    height: 20,
+    width: 20,
   }),
   addButton: css({
     padding: 5,
@@ -67,6 +79,10 @@ const styles = {
       transition: "all 0.3s ease",
       transform: "scale(1.2)",
     },
+  }),
+  addButtonIcon: css({
+    height: 25,
+    width: 25,
   }),
   containerTitle: css({
     padding: 5,
@@ -123,8 +139,7 @@ const Navbar: React.FC<NavbarProps> = ({
             <Icon
               icon="cil:magnifying-glass"
               color={theme.colors.primary}
-              height={20}
-              width={20}
+              css={styles.btnSearchIcon}
             />
           </div>
           <div
@@ -138,8 +153,7 @@ const Navbar: React.FC<NavbarProps> = ({
             <Icon
               icon="ic:outline-person-add"
               color={theme.colors.primary}
-              height={20}
-              width={20}
+              css={styles.addButtonIcon}
             />
           </div>
         </div>
