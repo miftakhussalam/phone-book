@@ -28,6 +28,11 @@ const styles = {
     justifyContent: "flex-start",
     alignItems: "center",
   }),
+  title: css({
+    margin: "10px 0",
+    fontWeight: "bold",
+    color: theme.colors.primary,
+  }),
   card: css({
     display: "flex",
     flexDirection: "row",
@@ -71,8 +76,10 @@ const styles = {
     border: "none",
     // borderRadius: '50%',
     cursor: "pointer",
+    transition: "all 0.3s ease",
     ":hover": {
       color: theme.colors.secondary,
+      transition: "all 0.3s ease",
     },
   }),
   contactNumber: css({
@@ -99,11 +106,15 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    ":hover": {
+      cursor: "pointer",
+      boxShadow: "0px 1px 4px 0px rgba(0,0,0,0.5)",
+    },
   }),
   loader: css({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   }),
 };
 
@@ -113,10 +124,11 @@ const ContactList: React.FC<ContactListProps> = ({
   setCurrentPage,
   itemsPerPage,
 }: ContactListProps) => {
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const favoriteContacts = useReactiveVar(favoriteContactsVar);
 
-  const { loading, error, data } = useQuery<DataModel>(GET_CONTACT_LIST, {
+  const { loading, data } = useQuery<DataModel>(GET_CONTACT_LIST, {
     variables: {
       where: {
         _or: [
@@ -145,29 +157,32 @@ const ContactList: React.FC<ContactListProps> = ({
     nextFetchPolicy: "cache-only",
   });
 
-  const { data: totalData } = useQuery(GET_CONTACT_AGGREGATE, {
-    variables: {
-      where: {
-        _or: [
-          {
-            first_name: {
-              _ilike: `%${searchValue}%`,
+  const { data: totalData } = useQuery(
+    GET_CONTACT_AGGREGATE,
+    {
+      variables: {
+        where: {
+          _or: [
+            {
+              first_name: {
+                _ilike: `%${searchValue}%`,
+              },
             },
-          },
-          {
-            last_name: {
-              _ilike: `%${searchValue}%`,
+            {
+              last_name: {
+                _ilike: `%${searchValue}%`,
+              },
             },
-          },
-        ],
-        _not: {
-          id: {
-            _in: favoriteContacts.map((items) => items.id),
+          ],
+          _not: {
+            id: {
+              _in: favoriteContacts.map((items) => items.id),
+            },
           },
         },
       },
-    },
-  });
+    }
+  );
 
   const totalPages = Math.ceil(
     (totalData?.contact_aggregate?.aggregate?.count || 0) / itemsPerPage
@@ -191,51 +206,47 @@ const ContactList: React.FC<ContactListProps> = ({
 
   return (
     <div css={styles.container}>
-      favorite contact
       {favoriteContacts.length !== 0
         ? favoriteContacts.map((items) => {
             return (
-              <Link
-                css={styles.card}
-                key={items.id}
-                to={`/contact/${items.id}`}
-                state={items}
-              >
-                <Icon
-                  icon="bi:person-circle"
-                  color={theme.colors.text.light}
-                  height={20}
-                  width={20}
-                  css={styles.contactIcon}
-                />
-                <div css={styles.contact}>
-                  <p css={styles.contactName}>
-                    {items.first_name} {items.last_name}
-                  </p>
-                  {items?.phones?.map((numb, index) => (
-                    <p css={styles.contactNumber} key={index}>
-                      {/* <Icon
+              <>
+                <p css={styles.title}>favorite contact</p>
+                <Link
+                  css={styles.card}
+                  key={items.id}
+                  to={`/contact/${items.id}`}
+                  state={items}
+                >
+                  <Icon
+                    icon="bi:person-circle"
+                    color={theme.colors.text.light}
+                    height={20}
+                    width={20}
+                    css={styles.contactIcon}
+                  />
+                  <div css={styles.contact}>
+                    <p css={styles.contactName}>
+                      {items.first_name} {items.last_name}
+                    </p>
+                    {items?.phones?.map((numb, index) => (
+                      <p css={styles.contactNumber} key={index}>
+                        {/* <Icon
                         icon="ph:phone-fill"
                         color={theme.colors.text.dark}
                         height={12}
                         width={12}
                         css={{ marginRight: "5px" }}
                       /> */}
-                      {numb.number || ""}
-                    </p>
-                  ))}
-                </div>
-                <Icon
-                  icon="ic:baseline-star"
-                  color={theme.colors.primary}
-                  height={20}
-                  width={20}
-                />
-              </Link>
+                        {numb.number || ""}
+                      </p>
+                    ))}
+                  </div>
+                </Link>
+              </>
             );
           })
-        : "Contact is empty"}
-      regular contact
+        : null}
+      <p css={styles.title}>regular contact</p>
       {data?.contact.length !== 0
         ? data?.contact.map((items) => {
             return (
@@ -272,7 +283,7 @@ const ContactList: React.FC<ContactListProps> = ({
               </Link>
             );
           })
-        : "Contact is empty"}
+        : "No data to display"}
       <div css={styles.paginations}>
         <button
           css={styles.pageBtn}

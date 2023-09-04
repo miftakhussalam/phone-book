@@ -7,6 +7,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { favoriteContactsVar } from "../graphql/cache";
 import { ContactModel } from "../graphql/models";
+import Toast, { ToastData } from "./Toast";
+import { useState } from "react";
 
 interface OptionsProps {
   optionOpen: boolean;
@@ -68,18 +70,40 @@ const Options: React.FC<OptionsProps> = ({
   const navigate = useNavigate();
   const params = useParams();
   const { state } = useLocation();
+  const [toast, setToast] = useState<ToastData>({
+    openToast: false,
+    title: "",
+    description: "",
+  });
 
   const isFavorite = (contact: ContactModel) => {
-    return favoriteContactsVar().some(item => {
-      return item.id === contact.id
-    })
+    return favoriteContactsVar().some((item) => {
+      return item.id === contact.id;
+    });
   };
 
   const onDelete = () => {
-    deleteContact({ variables: { id: params.id } }).then(() =>
-      navigate("/home")
-    );
+    deleteContact({ variables: { id: params.id } }).then(() => {
+      setToast({
+        openToast: true,
+        title: "success",
+        description: "delete successfully",
+      });
+      const filteredContact: ContactModel[] = favoriteContactsVar().filter(
+        (item) => item.id !== state.id
+      );
+      favoriteContactsVar(filteredContact);
+      localStorage.setItem("fav", JSON.stringify(filteredContact));
+      navigate("/home");
+    }).catch((err) => {
+      setToast({
+        openToast: true,
+        title: "fail",
+        description: "delete failed",
+      });
+    });
   };
+
   const onEdit = () => {
     setOptionOpen(false);
     setOpenModal(true);
@@ -87,18 +111,34 @@ const Options: React.FC<OptionsProps> = ({
 
   const onFavorite = () => {
     if (isFavorite(state)) {
-      const filteredContact: ContactModel[] = favoriteContactsVar().filter(item => item.id !== state.id);
+      const filteredContact: ContactModel[] = favoriteContactsVar().filter(
+        (item) => item.id !== state.id
+      );
       favoriteContactsVar(filteredContact);
       localStorage.setItem("fav", JSON.stringify(filteredContact));
+      setToast({
+        openToast: true,
+        title: "success",
+        description: "remove from favorite successfully",
+      });
     } else {
       favoriteContactsVar([...favoriteContactsVar(), state]);
       localStorage.setItem("fav", JSON.stringify(favoriteContactsVar()));
+      setToast({
+        openToast: true,
+        title: "success",
+        description: "add to favorite successfully",
+      });
     }
     setOptionOpen(false);
   };
 
   return (
     <div css={styles.container}>
+      <Toast
+        data={toast}
+        setData={setToast}
+      />
       <div
         css={optionOpen ? styles.wrap : {}}
         onClick={() => setOptionOpen(false)}
@@ -119,7 +159,7 @@ const Options: React.FC<OptionsProps> = ({
           />
         </div>
         <div onClick={() => onFavorite()} css={styles.optionBtn}>
-          {isFavorite(state) ? 'Unfavorite' : 'Favorite'}
+          {isFavorite(state) ? "Unfavorite" : "Favorite"}
           <Icon
             icon="ic:baseline-star"
             color={theme.colors.primary}
