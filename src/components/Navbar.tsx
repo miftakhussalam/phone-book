@@ -5,6 +5,7 @@ import { css } from "@emotion/react";
 import { theme } from "../theme/theme";
 import { useNavigate } from "react-router-dom";
 import Options from "./Options";
+import useSearch from "../hooks/useSearch";
 
 interface NavbarProps {
   searchValue?: string;
@@ -112,8 +113,8 @@ const styles = {
 };
 
 const Navbar: React.FC<NavbarProps> = ({
-  searchValue,
-  setSearchValue,
+  // searchValue,
+  // setSearchValue,
   openModal,
   setOpenModal,
   type,
@@ -121,6 +122,12 @@ const Navbar: React.FC<NavbarProps> = ({
 }: NavbarProps) => {
   const [optionOpen, setOptionOpen] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  const { setSearchValue, searchValue } = useSearch();
+
+  setSearchValue(searchValue!);
+
+  console.log('searchValue', searchValue);
 
   return (
     <div css={styles.container}>

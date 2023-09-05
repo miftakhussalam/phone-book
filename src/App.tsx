@@ -9,6 +9,7 @@ import { CachePersistor, LocalStorageWrapper } from "apollo3-cache-persist";
 import HomePage from "./pages/Home";
 import ContactDetailPage from "./pages/ContactDetail";
 import { cache } from "./graphql/cache";
+import { SearchProvider } from "./context/SearchContext";
 const App: React.FC = () => {
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
   // const [persistor, setPersistor] =
@@ -52,13 +53,15 @@ const App: React.FC = () => {
 
   return (
     <ApolloProvider client={client}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/contact/:id" element={<ContactDetailPage />} />
-        </Routes>
-      </BrowserRouter>
+      <SearchProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/contact/:id" element={<ContactDetailPage />} />
+          </Routes>
+        </BrowserRouter>
+      </SearchProvider>
     </ApolloProvider>
   );
 };

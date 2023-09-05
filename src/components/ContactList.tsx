@@ -8,9 +8,9 @@ import { ContactModel } from "../graphql/models";
 import { GET_CONTACT_AGGREGATE, GET_CONTACT_LIST } from "../graphql/queries";
 import { theme } from "../theme/theme";
 import { favoriteContactsVar } from "../graphql/cache";
+import useSearch from "../hooks/useSearch";
 
 interface ContactListProps {
-  searchValue: string;
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
   itemsPerPage: number;
@@ -119,11 +119,11 @@ const styles = {
 };
 
 const ContactList: React.FC<ContactListProps> = ({
-  searchValue,
   currentPage,
   setCurrentPage,
   itemsPerPage,
 }: ContactListProps) => {
+  const { searchValue } = useSearch();
   const startIndex = (currentPage - 1) * itemsPerPage;
   const favoriteContacts = useReactiveVar(favoriteContactsVar);
 

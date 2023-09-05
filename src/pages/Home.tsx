@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 import ContactList from "../components/ContactList";
 import Navbar from "../components/Navbar";
 import ModalCreateUpdate from "../components/ModalCreateUpdate";
+import useSearch from "../hooks/useSearch";
 
 interface HomeProps {}
 
 const HomePage: React.FC<HomeProps> = (props: HomeProps) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>("");
+  const { searchValue } = useSearch();
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
@@ -23,14 +24,11 @@ const HomePage: React.FC<HomeProps> = (props: HomeProps) => {
         setOpenModal={setOpenModal}
       />
       <Navbar
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
         openModal={openModal}
         setOpenModal={setOpenModal}
         type="search"
       />
       <ContactList
-        searchValue={searchValue}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         itemsPerPage={10}
