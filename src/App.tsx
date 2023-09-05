@@ -11,6 +11,7 @@ import ContactDetailPage from "./pages/ContactDetail";
 import { cache } from "./graphql/cache";
 import { SearchProvider } from "./context/SearchContext";
 import { ContactDetailProvider } from "./context/ContactDetailContext";
+import { ModalProvider } from "./context/ModalContext";
 const App: React.FC = () => {
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
   // const [persistor, setPersistor] =
@@ -54,17 +55,19 @@ const App: React.FC = () => {
 
   return (
     <ApolloProvider client={client}>
-      <SearchProvider>
-        <ContactDetailProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Navigate to="/home" replace />} />
-              <Route path="/home" element={<HomePage />} />
-              <Route path="/contact/:id" element={<ContactDetailPage />} />
-            </Routes>
-          </BrowserRouter>
-        </ContactDetailProvider>
-      </SearchProvider>
+      <ModalProvider>
+        <SearchProvider>
+          <ContactDetailProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Navigate to="/home" replace />} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/contact/:id" element={<ContactDetailPage />} />
+              </Routes>
+            </BrowserRouter>
+          </ContactDetailProvider>
+        </SearchProvider>
+      </ModalProvider>
     </ApolloProvider>
   );
 };

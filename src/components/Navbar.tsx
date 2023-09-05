@@ -6,12 +6,13 @@ import { theme } from "../theme/theme";
 import { useNavigate } from "react-router-dom";
 import Options from "./Options";
 import useSearch from "../hooks/useSearch";
+import useModal from "../hooks/useModal";
+import useContactDetail from "../hooks/useContactDetail";
+import { defaultContactDetail } from "../context/ContactDetailContext";
 
 interface NavbarProps {
   searchValue?: string;
   setSearchValue?: React.Dispatch<React.SetStateAction<string>>;
-  openModal: boolean;
-  setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
   type: string | undefined;
   title?: string | undefined;
 }
@@ -112,22 +113,13 @@ const styles = {
   }),
 };
 
-const Navbar: React.FC<NavbarProps> = ({
-  // searchValue,
-  // setSearchValue,
-  openModal,
-  setOpenModal,
-  type,
-  title,
-}: NavbarProps) => {
+const Navbar: React.FC<NavbarProps> = ({ type, title }: NavbarProps) => {
   const [optionOpen, setOptionOpen] = useState<boolean>(false);
+  const { openModal, setOpenModal } = useModal();
+  const {setContactDetail} = useContactDetail();
   const navigate = useNavigate();
 
   const { setSearchValue, searchValue } = useSearch();
-
-  setSearchValue(searchValue!);
-
-  console.log('searchValue', searchValue);
 
   return (
     <div css={styles.container}>
@@ -138,7 +130,7 @@ const Navbar: React.FC<NavbarProps> = ({
             type="text"
             value={searchValue}
             onChange={(e) => {
-              if (setSearchValue) return setSearchValue(e.target.value);
+              if (setSearchValue) return setSearchValue(e.target.value!);
             }}
             placeholder="Search contact(s)..."
           />
@@ -154,6 +146,7 @@ const Navbar: React.FC<NavbarProps> = ({
             onClick={() => {
               if (setOpenModal) {
                 setOpenModal(!openModal);
+                setContactDetail(defaultContactDetail);
               }
             }}
           >

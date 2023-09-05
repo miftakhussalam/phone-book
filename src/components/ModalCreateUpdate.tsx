@@ -13,11 +13,10 @@ import {
 } from "../graphql/mutations";
 import Toast, { ToastData } from "./Toast";
 import useContactDetail from "../hooks/useContactDetail";
+import useModal from "../hooks/useModal";
 // import { GET_CONTACT_LIST } from "../graphql/queries";
 
 interface ModalCreateUpdateProps {
-  openModal?: boolean;
-  setOpenModal?: React.Dispatch<React.SetStateAction<boolean>>;
   type: string;
 }
 
@@ -147,10 +146,9 @@ const styles = {
 };
 
 const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
-  openModal,
-  setOpenModal,
   type,
 }: ModalCreateUpdateProps) => {
+  const { openModal, setOpenModal } = useModal();
   const { contactDetail, setContactDetail } = useContactDetail();
   const [firstName, setFirstName] = useState<string>(
     contactDetail?.first_name || ""

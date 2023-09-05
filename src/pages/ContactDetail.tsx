@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { css } from "@emotion/react";
 import { Icon } from "@iconify/react";
@@ -68,25 +68,18 @@ const ContactDetailPage: React.FC<ContactDetailProps> = (
 ) => {
   const { state }: { state: ContactModel } = useLocation();
   const { contactDetail, setContactDetail } = useContactDetail();
-  const [openModal, setOpenModal] = useState<boolean>(false);
 
   useEffect(() => {
     setContactDetail(state);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   return (
     <div css={styles.root}>
-      <ModalCreateUpdate
-        type="edit"
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-      />
+      <ModalCreateUpdate type="edit" />
       <Navbar
         type="header"
         title={contactDetail.first_name}
-        openModal={openModal}
-        setOpenModal={setOpenModal}
       />
       <div css={styles.container}>
         <Icon
