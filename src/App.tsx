@@ -10,6 +10,7 @@ import HomePage from "./pages/Home";
 import ContactDetailPage from "./pages/ContactDetail";
 import { cache } from "./graphql/cache";
 import { SearchProvider } from "./context/SearchContext";
+import { ContactDetailProvider } from "./context/ContactDetailContext";
 const App: React.FC = () => {
   const [client, setClient] = useState<ApolloClient<NormalizedCacheObject>>();
   // const [persistor, setPersistor] =
@@ -54,13 +55,15 @@ const App: React.FC = () => {
   return (
     <ApolloProvider client={client}>
       <SearchProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/home" replace />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/contact/:id" element={<ContactDetailPage />} />
-          </Routes>
-        </BrowserRouter>
+        <ContactDetailProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Navigate to="/home" replace />} />
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/contact/:id" element={<ContactDetailPage />} />
+            </Routes>
+          </BrowserRouter>
+        </ContactDetailProvider>
       </SearchProvider>
     </ApolloProvider>
   );

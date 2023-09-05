@@ -2,7 +2,7 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { css } from "@emotion/react";
 import { theme } from "../theme/theme";
-import { ContactModel, PhoneModel } from "../graphql/models";
+import { PhoneModel } from "../graphql/models";
 import { Icon } from "@iconify/react";
 import { gql, useMutation } from "@apollo/client";
 import {
@@ -12,13 +12,12 @@ import {
   EDIT_PHONE_NUMBER,
 } from "../graphql/mutations";
 import Toast, { ToastData } from "./Toast";
+import useContactDetail from "../hooks/useContactDetail";
 // import { GET_CONTACT_LIST } from "../graphql/queries";
 
 interface ModalCreateUpdateProps {
   openModal?: boolean;
   setOpenModal?: React.Dispatch<React.SetStateAction<boolean>>;
-  contactDetail?: ContactModel;
-  setContactDetail?: React.Dispatch<React.SetStateAction<ContactModel>>;
   type: string;
 }
 
@@ -105,10 +104,10 @@ const styles = {
     color: theme.colors.primary,
     gap: 10,
     // transition: "all 0.3s ease",
-    ':hover': {
+    ":hover": {
       fontWeight: "bolder",
       transition: "all 0.3s ease",
-    }
+    },
   }),
   actionBtn: css({
     display: "flex",
@@ -150,10 +149,9 @@ const styles = {
 const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
   openModal,
   setOpenModal,
-  contactDetail,
-  setContactDetail,
   type,
 }: ModalCreateUpdateProps) => {
+  const { contactDetail, setContactDetail } = useContactDetail();
   const [firstName, setFirstName] = useState<string>(
     contactDetail?.first_name || ""
   );
@@ -168,12 +166,12 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
     openToast: false,
     title: "",
     description: "",
-  })
+  });
 
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>, i: number) => {
     const updatedPhones = [...phones];
     const inputValue = e.target.value;
-    updatedPhones[i] = { number: inputValue.replace(/[^0-9+]/g, '') };
+    updatedPhones[i] = { number: inputValue.replace(/[^0-9+]/g, "") };
     setPhones(updatedPhones);
   };
 
@@ -304,18 +302,18 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
           // alert("add number success");
           setToast({
             openToast: true,
-            title: 'Success',
-            description: 'add number successfuly'
-          })
+            title: "Success",
+            description: "add number successfuly",
+          });
           if (setContactDetail)
             setContactDetail(res.data.insert_phone.returning[0].contact);
         })
         .catch((err) => {
           setToast({
             openToast: true,
-            title: 'fail',
-            description: err.toString()
-          })
+            title: "fail",
+            description: err.toString(),
+          });
         });
     } else {
       editPhoneNumber({
@@ -331,18 +329,18 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
           // alert("update success");
           setToast({
             openToast: true,
-            title: 'Success',
-            description: 'edit number successfuly'
-          })
+            title: "Success",
+            description: "edit number successfuly",
+          });
           if (setContactDetail)
             setContactDetail(res.data.update_phone_by_pk.contact);
         })
         .catch((err) => {
           setToast({
             openToast: true,
-            title: 'fail',
-            description: err.toString()
-          })
+            title: "fail",
+            description: err.toString(),
+          });
         });
     }
   };
@@ -359,17 +357,17 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
         .then((res) => {
           setToast({
             openToast: true,
-            title: 'Success',
-            description: 'add contact successfuly'
+            title: "Success",
+            description: "add contact successfuly",
           });
           closeModal();
         })
         .catch((err) => {
           setToast({
             openToast: true,
-            title: 'fail',
-            description: err.toString()
-          })
+            title: "fail",
+            description: err.toString(),
+          });
         });
     } else {
       editContact({
@@ -385,8 +383,8 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
         .then((res) => {
           setToast({
             openToast: true,
-            title: 'Success',
-            description: 'edit contact successfuly'
+            title: "Success",
+            description: "edit contact successfuly",
           });
           closeModal();
           if (setContactDetail) setContactDetail(res.data.update_contact_by_pk);
@@ -394,9 +392,9 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
         .catch((err) => {
           setToast({
             openToast: true,
-            title: 'fail',
-            description: err.toString()
-          })
+            title: "fail",
+            description: err.toString(),
+          });
         });
     }
   };
@@ -460,7 +458,10 @@ const ModalCreateUpdate: React.FC<ModalCreateUpdateProps> = ({
               />
               {type === "add" ? (
                 index > 0 && (
-                  <div css={styles.actionBtn} onClick={() => removePhone(index)}>
+                  <div
+                    css={styles.actionBtn}
+                    onClick={() => removePhone(index)}
+                  >
                     <Icon
                       icon="mdi:trash-outline"
                       color={theme.colors.primary}

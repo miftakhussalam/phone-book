@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { css } from "@emotion/react";
 import { Icon } from "@iconify/react";
@@ -7,6 +7,7 @@ import { ContactModel } from "../graphql/models";
 import Navbar from "../components/Navbar";
 import { theme } from "../theme/theme";
 import ModalCreateUpdate from "../components/ModalCreateUpdate";
+import useContactDetail from "../hooks/useContactDetail";
 
 interface ContactDetailProps {}
 
@@ -52,7 +53,7 @@ const styles = {
   listNumber: css({
     display: "flex",
     alignItems: "center",
-    margin: '10px 50px'
+    margin: "10px 50px",
   }),
   number: css({
     margin: 0,
@@ -66,22 +67,13 @@ const ContactDetailPage: React.FC<ContactDetailProps> = (
   props: ContactDetailProps
 ) => {
   const { state }: { state: ContactModel } = useLocation();
-  const defaultContactDetail = {
-    __typename: "contact",
-    id: 0,
-    first_name: "",
-    last_name: "",
-    phones: [
-      {
-        __typename: "phone",
-        number: "",
-      },
-    ],
-  };
+  const { contactDetail, setContactDetail } = useContactDetail();
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [contactDetail, setContactDetail] = useState<ContactModel>(
-    state || defaultContactDetail
-  );
+
+  useEffect(() => {
+    setContactDetail(state);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state])
 
   return (
     <div css={styles.root}>
@@ -89,8 +81,6 @@ const ContactDetailPage: React.FC<ContactDetailProps> = (
         type="edit"
         openModal={openModal}
         setOpenModal={setOpenModal}
-        contactDetail={contactDetail}
-        setContactDetail={setContactDetail}
       />
       <Navbar
         type="header"
