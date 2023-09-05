@@ -1,11 +1,11 @@
 import React, { createContext, useState } from "react";
 
-interface SearchContectType {
+interface SearchContextType {
   searchValue: string;
   setSearchValue: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const SearchContext = createContext<SearchContectType | undefined>(
+export const SearchContext = createContext<SearchContextType | undefined>(
   undefined
 );
 
