@@ -23,14 +23,14 @@ export interface objectText {
 
 export const theme: objectTheme = {
 	colors: {
-		primary: '#00AA5B',
+		primary: '#00853D',
 		secondary: '#C9FDE0',
 		background: {
 			transparent: 'rgba(0,0,0,0.5)',
 			main: '#F7FAFF',
 		},
 		text: {
-			dark: '#959694',
+			dark: '#757674',
 			light: '#ffffff',
 			main: '#474f47',
 		},

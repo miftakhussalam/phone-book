@@ -210,6 +210,7 @@ const ContactList: React.FC<ContactListProps> = ({
         ? favoriteContacts.map((items) => {
             return (
               <Link
+                rel="preload"
                 css={styles.card}
                 key={items.id}
                 to={`/contact/${items.id}`}
@@ -283,6 +284,8 @@ const ContactList: React.FC<ContactListProps> = ({
         : "No data to display"}
       <div css={styles.paginations}>
         <button
+          id="prevBtn"
+          aria-label="Previus Button"
           css={styles.pageBtn}
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -299,6 +302,8 @@ const ContactList: React.FC<ContactListProps> = ({
           Page {currentPage} of {totalPages}
         </span>
         <button
+          id="nextBtn"
+          aria-label="Next Button"
           css={styles.pageBtn}
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
